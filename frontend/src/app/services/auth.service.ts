@@ -17,7 +17,7 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   message: string;
-  token: string;
+  accessToken: string;
   usuario: {
     _id: string;
     name: string;
@@ -58,10 +58,10 @@ export class AuthService {
   /**
    * Refresca el token actual.
    */
-  refreshToken(): Observable<{ token: string }> {
-    return this.http.get<{ token: string }>(`${API_URL}/auth/refresh`).pipe(
+  refreshToken(): Observable<{ accessToken: string }> {
+    return this.http.post<{ accessToken: string }>(`${API_URL}/auth/refresh`, {}, { withCredentials: true }).pipe(
       tap((res) => {
-        this.saveToken(res.token);
+        this.saveToken(res.accessToken);
       })
     );
   }
@@ -70,9 +70,9 @@ export class AuthService {
    * Inicia sesión. Si tiene éxito, guarda el token y redirige a /home.
    */
   login(payload: LoginPayload): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_URL}/auth/login`, payload).pipe(
+    return this.http.post<LoginResponse>(`${API_URL}/auth/login`, payload, { withCredentials: true }).pipe(
       tap((res) => {
-        this.saveToken(res.token);
+        this.saveToken(res.accessToken);
         this.router.navigate(['/home']);
       })
     );
@@ -102,6 +102,15 @@ export class AuthService {
 
   /** Cierra sesión eliminando el token */
   logout(): void {
+    this.http.post(`${API_URL}/auth/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {
+        // noop
+      },
+      error: () => {
+        // noop
+      }
+    });
+
     localStorage.removeItem(TOKEN_KEY);
     this.router.navigate(['/login']);
   }

@@ -135,9 +135,36 @@ Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
 ```env
 MONGO_URI="mongodb://localhost:27017/sem1"
 SERVER_PORT="1337"
+JWT_ACCESS_SECRET="tu_access_secret"
+JWT_REFRESH_SECRET="tu_refresh_secret"
+JWT_ACCESS_EXPIRES_IN="15m"
+JWT_REFRESH_EXPIRES_IN="7d"
+CORS_ORIGIN="http://localhost:4200"
 ```
 
 La variable crítica es `MONGO_URI`. La base de datos usada por defecto es **`sem1`**.
+
+---
+
+## Autenticación con Access + Refresh Token
+
+### Dónde se guarda cada token
+
+- **Access Token**: se devuelve en el body de `POST /auth/login` y se guarda en `localStorage` del frontend para enviarlo en `Authorization: Bearer ...`.
+- **Refresh Token**: se guarda en una cookie `httpOnly` (no accesible por JavaScript) y además su hash se persiste en MongoDB (`Usuario.refreshTokenHash`).
+
+### Flujo implementado
+
+1. `POST /auth/login`: valida credenciales, emite `accessToken` (corto) + `refreshToken` (largo), guarda hash del refresh token y setea cookie `httpOnly`.
+2. Si expira el access token, el frontend recibe `401` y llama automáticamente `POST /auth/refresh` con `withCredentials: true`.
+3. El backend valida firma del refresh token + hash en base de datos, rota refresh token y responde un nuevo `accessToken`.
+4. El interceptor reintenta la petición original con el nuevo access token.
+
+### Endpoints auth relevantes
+
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
 
 ---
 

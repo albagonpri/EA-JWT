@@ -45,8 +45,8 @@ export class HomeComponent implements OnInit {
 
   refreshToken(): void {
     this.authService.refreshToken().subscribe({
-      next: (res: { token: string }) => {
-        const token = res.token;
+      next: (res: { accessToken: string }) => {
+        const token = res.accessToken;
         this.tokenPreview = token.substring(0, 50) + '...';
         alert('Token refrescado correctamente');
       },

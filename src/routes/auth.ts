@@ -1,8 +1,7 @@
 import express from 'express';
-import { login, refreshToken } from '../controllers/auth';
+import { login, logout, refreshToken } from '../controllers/auth';
 import Joi from 'joi';
 import { ValidateJoi } from '../middleware/Joi';
-import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -47,17 +46,27 @@ router.post('/login', ValidateJoi(loginSchema), login);
 /**
  * @openapi
  * /auth/refresh:
- *   get:
+ *   post:
  *     summary: Refresca el token JWT
  *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Token refrescado correctamente
  *       401:
  *         description: No autorizado (token faltante o inválido)
  */
-router.get('/refresh', authenticateToken, refreshToken);
+router.post('/refresh', refreshToken);
+
+/**
+ * @openapi
+ * /auth/logout:
+ *   post:
+ *     summary: Cierra sesión y revoca el refresh token
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout exitoso
+ */
+router.post('/logout', logout);
 
 export default router;

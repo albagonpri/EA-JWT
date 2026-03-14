@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { config } from './config/config';
 import Logging from './library/Logging';
 import organizacionRoutes from './routes/Organizacion';
@@ -40,9 +41,15 @@ const StartServer = () => {
 
     router.use(express.urlencoded({ extended: true }));
     router.use(express.json());
+    router.use(cookieParser());
 
     /** Rules of our API */
-    router.use(cors());
+    router.use(
+        cors({
+            origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+            credentials: true
+        })
+    );
 
     /** Swagger */
     router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

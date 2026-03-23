@@ -1,37 +1,29 @@
-<div>
-  <h2>Inicio</h2>
-  <p>Has iniciado sesión correctamente</p>
+<h2>Inicio</h2>
 
-  <div style="margin: 20px 0;">
-    <h3>Tu Token JWT</h3>
-    <code style="display:block; padding:10px; background:#eee; word-break:break-all;">
-      {{ tokenPreview }}
-    </code>
-  </div>
+<p>Has iniciado sesión correctamente</p>
+<p *ngIf="currentUser"><strong>Rol:</strong> {{ currentUser.role }}</p>
 
-  <div style="margin: 20px 0;">
-    <h3>Prueba de Token: Lista de Usuarios</h3>
-    <button class="btn" (click)="cargarUsuarios()" [disabled]="loadingUsuarios" style="margin-right: 10px;">
-      <span *ngIf="loadingUsuarios">Cargando...</span>
-      <span *ngIf="!loadingUsuarios">Cargar Lista de Usuarios</span>
-    </button>
-    <button class="btn" (click)="refreshToken()">
-      Refrescar Token
-    </button>
-
-    <div *ngIf="errorUsuarios" class="alert" style="margin-top: 10px;">
-      {{ errorUsuarios }}
-    </div>
-
-    <ul *ngIf="usuarios.length > 0" class="list" style="margin-top: 15px;">
-      <li *ngFor="let u of usuarios" class="card" style="flex-direction: row; justify-content: start; gap:10px;">
-        <span class="name">{{ u.name }}</span>
-        <span class="muted">{{ u.email }}</span>
-      </li>
-    </ul>
-  </div>
-
-  <button class="btn" (click)="logout()">
-    Cerrar Sesión
-  </button>
+<div *ngIf="isAdmin()">
+  <a routerLink="/admin">Ir al panel de administración</a>
 </div>
+
+<h3>Tu Token JWT</h3>
+<code>{{ tokenPreview }}</code>
+
+<h3>Prueba de Token: Lista de Usuarios</h3>
+
+<button *ngIf="isAdmin()" (click)="cargarUsuarios()" [disabled]="loadingUsuarios">
+  {{ loadingUsuarios ? 'Cargando...' : 'Cargar Lista de Usuarios' }}
+</button>
+
+<button (click)="refreshToken()">Refrescar Token</button>
+
+<p>{{ errorUsuarios }}</p>
+
+<ul>
+  <li *ngFor="let u of usuarios">
+    {{ u.name }} - {{ u.email }} - {{ u.role }}
+  </li>
+</ul>
+
+<button (click)="logout()">Cerrar Sesión</button>

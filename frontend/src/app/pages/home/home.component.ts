@@ -1,27 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, Usuario } from '../../services/auth.service';
+import { RouterLink } from '@angular/router';
+import { AuthService, Usuario, AuthUser } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   tokenPreview = '';
   usuarios: Usuario[] = [];
   loadingUsuarios = false;
   errorUsuarios = '';
+  currentUser: AuthUser | null = null;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     const token = this.authService.getToken() || '';
-    // Ahora mostramos el token completo para poder ver los cambios de firma
     this.tokenPreview = token;
-    console.log('Token actual:', token);
+    this.currentUser = this.authService.getUser();
   }
 
   logout(): void {
@@ -47,14 +48,16 @@ export class HomeComponent implements OnInit {
   refreshToken(): void {
     this.authService.refreshToken().subscribe({
       next: (res: { accessToken: string }) => {
-        const token = res.accessToken;
-        this.tokenPreview = token; // Mostramos el token completo
-        console.log('Nuevo Token refrescado:', token);
-        alert('Token refrescado correctamente. Revisa la consola para comparar.');
+        this.tokenPreview = res.accessToken;
+        alert('Token refrescado correctamente');
       },
       error: (err: any) => {
         this.errorUsuarios = err.error?.message || 'Error al refrescar el token';
       }
     });
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole('admin');
   }
 }

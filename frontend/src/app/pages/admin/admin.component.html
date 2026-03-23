@@ -1,0 +1,13 @@
+<h2>Panel de Administración</h2>
+
+<p *ngIf="loading">Cargando recurso protegido...</p>
+<p *ngIf="errorMessage">{{ errorMessage }}</p>
+
+<div *ngIf="panelData">
+  <p>{{ panelData.message }}</p>
+
+  <pre>{{ panelData.secretData | json }}</pre>
+</div>
+
+<button (click)="loadPanel()">Recargar recurso</button>
+<button (click)="logout()">Cerrar sesión</button>
